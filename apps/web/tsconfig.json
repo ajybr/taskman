@@ -6,7 +6,18 @@
         "name": "next"
       }
     ],
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"],
+      "@/lib/*": ["./lib/*"],
+      "@/stores/*": ["./stores/*"],
+      "@/hooks/*": ["./hooks/*"],
+      "@/components/*": ["./components/*"],
+      "@/providers": ["./providers.tsx"],
+      "@repo/types": ["../../packages/types/index.ts"],
+      "@repo/types/*": ["../../packages/types/*"]
+    }
   },
   "include": [
     "**/*.ts",
