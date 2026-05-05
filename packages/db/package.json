@@ -1,0 +1,11 @@
+{
+  "name": "@repo/db",
+  "exports": {
+    ".": "./index.ts",
+    "./schema": "./schema.ts"
+  },
+  "devDependencies": {
+    "pg": "^8.13.3",
+    "typescript": "^5"
+  }
+}

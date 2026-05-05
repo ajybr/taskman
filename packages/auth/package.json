@@ -1,0 +1,12 @@
+{
+  "name": "@repo/auth",
+  "exports": {
+    "./schemas": "./schema.ts",
+    "./password": "./password.ts",
+    "./jwt": "./jwt.ts",
+    "./middleware": "./middleware.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  }
+}
