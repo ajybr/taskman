@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronDown, X, UserPlus, Plus } from "lucide-react";
@@ -10,7 +10,7 @@ import { useInvite } from "@/hooks/useDashboard";
 import { ToastContainer } from "@/components/common";
 import { CreateProjectModal, JoinProjectModal } from "@/components/dashboard";
 
-export default function DashboardLayout({
+function DashboardContent({
   children,
 }: {
   children: React.ReactNode;
@@ -176,5 +176,34 @@ export default function DashboardLayout({
 
       <ToastContainer />
     </div>
+  );
+}
+
+function DashboardLoading() {
+  return (
+    <div className="min-h-screen bg-base-200 flex flex-col">
+      <div className="navbar bg-base-100 shadow-sm px-6">
+        <div className="navbar-start text-xl font-bold text-primary">TASKMAN</div>
+        <div className="navbar-center"></div>
+        <div className="navbar-end">
+          <div className="w-8 h-8 rounded-full bg-primary"></div>
+        </div>
+      </div>
+      <main className="flex-1 flex items-center justify-center">
+        <span className="loading loading-spinner loading-lg"></span>
+      </main>
+    </div>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Suspense fallback={<DashboardLoading />}>
+      <DashboardContent>{children}</DashboardContent>
+    </Suspense>
   );
 }
