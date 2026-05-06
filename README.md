@@ -34,6 +34,91 @@ graph TD
     end
 ```
 
+## Database Schema
+
+### Tables
+
+| Table | PK | Columns |
+|-------|-----|---------|
+| **users** | id | id (uuid), name, email (unique), passwordHash, createdAt |
+| **projects** | id | id (uuid), name, description, createdBy (FK), createdAt |
+| **projectMembers** | (projectId, userId) | projectId (FK), userId (FK), role (admin/member), joinedAt |
+| **tasks** | id | projectId (FK), title, description, priority, status, assignedTo (FK), createdBy (FK), dueDate, createdAt |
+| **projectInvites** | id | projectId (FK), inviteToken (unique), invitedBy (FK), role, acceptedAt, expiresAt |
+
+### Relationships
+
+| From | To | On Delete |
+|------|-----|-----------|
+| projects.createdBy | users.id | - |
+| projectMembers.projectId | projects.id | cascade |
+| projectMembers.userId | users.id | cascade |
+| tasks.projectId | projects.id | cascade |
+| tasks.assignedTo | users.id | set null |
+| tasks.createdBy | users.id | - |
+| projectInvites.projectId | projects.id | cascade |
+| projectInvites.invitedBy | users.id | - |
+
+### ER Diagram
+
+```mermaid
+erDiagram
+    USERS {
+        uuid id PK
+        string name
+        string email UK
+        string passwordHash
+        timestamp createdAt
+    }
+
+    PROJECTS {
+        uuid id PK
+        string name
+        string description
+        uuid createdBy FK
+        timestamp createdAt
+    }
+
+    PROJECT_MEMBERS {
+        uuid projectId PK,FK
+        uuid userId PK,FK
+        string role
+        timestamp joinedAt
+    }
+
+    TASKS {
+        uuid id PK
+        uuid projectId FK
+        string title
+        string description
+        string priority
+        string status
+        uuid assignedTo FK
+        uuid createdBy FK
+        date dueDate
+        timestamp createdAt
+    }
+
+    PROJECT_INVITES {
+        uuid id PK
+        uuid projectId FK
+        string inviteToken UK
+        uuid invitedBy FK
+        string role
+        timestamp acceptedAt
+        timestamp expiresAt
+    }
+
+    USERS ||--o{ PROJECTS : "creates"
+    PROJECTS ||--o{ PROJECT_MEMBERS : "has"
+    USERS ||--o{ PROJECT_MEMBERS : "belongs to"
+    PROJECTS ||--o{ TASKS : "contains"
+    TASKS }o--|| USERS : "assigned to"
+    TASKS }o--|| USERS : "created by"
+    PROJECTS ||--o{ PROJECT_INVITES : "generates"
+    USERS ||--o{ PROJECT_INVITES : "sends"
+```
+
 ## Environment Setup
 
 ```bash
