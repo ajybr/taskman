@@ -40,46 +40,45 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
     <div className="fixed inset-0 bg-base-100/50 backdrop-blur-sm flex items-center justify-center z-50">
       <fieldset className="fieldset bg-base-200 p-4 rounded-lg w-80">
         <legend className="fieldset-legend">New Project</legend>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Project Name</span>
-            </label>
+        <div className="space-y-4">
+          <label className="floating-label input input-bordered w-full">
+            <span>Project Name</span>
             <input
               type="text"
-              className="input input-bordered"
+              className="flex-1"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="My Project"
-              required
               autoFocus
             />
-          </div>
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text">Description (optional)</span>
-            </label>
+          </label>
+          <label className="floating-label textarea textarea-bordered w-full">
+            <span>Description (optional)</span>
             <textarea
-              className="textarea textarea-bordered"
+              className="flex-1"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Project description"
               rows={2}
             />
-          </div>
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              className="btn btn-primary flex-1"
-              disabled={!name.trim() || createProject.isPending}
-            >
-              {createProject.isPending ? "Creating..." : "Create"}
-            </button>
-            <button type="button" className="btn flex-1" onClick={onClose}>
-              Cancel
-            </button>
-          </div>
-        </form>
+          </label>
+        </div>
+        <div className="flex gap-2 mt-4">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="btn btn-primary flex-1"
+          >
+            {createProject.isPending ? (
+              <span className="loading loading-spinner loading-sm"></span>
+            ) : (
+              "Create"
+            )}
+          </button>
+          <button type="button" className="btn flex-1" onClick={onClose}>
+            Cancel
+          </button>
+        </div>
       </fieldset>
     </div>
   );

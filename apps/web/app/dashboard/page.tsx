@@ -2,8 +2,9 @@
 
 import { useState, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ListTodo, Target } from "lucide-react";
 import { useAuthStore, useProjectStore, useToastStore } from "@/stores";
+import { useEffect } from "react";
 import {
   useTasks,
   useRefreshTasks,
@@ -22,9 +23,9 @@ import { Modal } from "@/components/common";
 import type { TaskStatus, TaskPriority, ProjectRole } from "@repo/types";
 
 const STATUS_COLUMNS: { key: TaskStatus; label: string; color: string }[] = [
-  { key: "todo", label: "To Do", color: "bg-info/50" },
-  { key: "in_progress", label: "In Progress", color: "bg-warning/50" },
-  { key: "done", label: "Done", color: "bg-success/50" },
+  { key: "todo", label: "To Do", color: "bg-info/10" },
+  { key: "in_progress", label: "In Progress", color: "bg-warning/10" },
+  { key: "done", label: "Done", color: "bg-success/10" },
 ];
 
 function DashboardContent() {
@@ -53,6 +54,14 @@ function DashboardContent() {
   const projects = useProjectStore((s) => s.projects);
   const currentProject = useProjectStore((s) => s.currentProject);
   const members = useProjectStore((s) => s.members);
+  const projectStats = useProjectStore((s) => s.projectStats);
+  const fetchProjectStats = useProjectStore((s) => s.fetchProjectStats);
+
+  useEffect(() => {
+    if (projects.length > 0) {
+      fetchProjectStats();
+    }
+  }, [projects.length, fetchProjectStats]);
 
   const tasksByStatus = useMemo(() => {
     const grouped: Record<TaskStatus, typeof tasks> = {
@@ -112,7 +121,11 @@ function DashboardContent() {
   const handleStatusChange = async (taskId: string, status: TaskStatus) => {
     if (!projectId) return;
     try {
-      await updateTask.mutateAsync({ id: taskId, updates: { status }, projectId });
+      await updateTask.mutateAsync({
+        id: taskId,
+        updates: { status },
+        projectId,
+      });
     } catch (err) {
       addToast(err instanceof Error ? err.message : "Failed to update task");
     }
@@ -184,20 +197,29 @@ function DashboardContent() {
                 <div className="text-sm text-base-content/60 mt-2">
                   {project.description || "No description"}
                 </div>
+                <div className="stats stats-horizontal shadow mt-4">
+                  <div className="stat">
+                    <div className="stat-figure text-primary">
+                      <ListTodo className="h-6 w-6" />
+                    </div>
+                    <div className="stat-title">Total Tasks</div>
+                    <div className="stat-value">
+                      {projectStats.get(project.id)?.total ?? 0}
+                    </div>
+                  </div>
+                  <div className="stat">
+                    <div className="stat-figure text-error">
+                      <Target className="h-6 w-6" />
+                    </div>
+                    <div className="stat-title">Overdue</div>
+                    <div className="stat-value text-error">
+                      {projectStats.get(project.id)?.overdue ?? 0}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
-        </div>
-
-        <div className="flex justify-center mt-8 gap-4">
-          <button
-            className="btn btn-outline"
-            onClick={() => {
-              router.push("/dashboard");
-            }}
-          >
-            Create/Join via Header
-          </button>
         </div>
       </div>
     );
@@ -206,8 +228,8 @@ function DashboardContent() {
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between p-4">
-        <h2 className="text-xl font-bold">
-          {currentProject.name}{" "}
+        <h2 className="text-xl flex justify-center items-center gap-2 font-bold">
+          <span>{currentProject.name}</span>
           <span
             className={`badge badge-sm  ${currentProject.role === "admin" ? "badge-success" : "badge-outline"}`}
           >
@@ -242,7 +264,7 @@ function DashboardContent() {
                 Total Tasks: {tasks.length}
               </div>
               <button
-                className="btn btn-ghost btn-sm btn-square tooltip"
+                className="btn btn-ghost btn-sm btn-square tooltip tooltip-left"
                 data-tip="Refresh tasks"
                 onClick={() => projectId && refreshTasks(projectId)}
               >
@@ -311,6 +333,7 @@ function DashboardContent() {
         members={members}
         currentUserId={user?.id}
         className="w-96"
+        isPending={createTask.isPending}
       />
 
       <MembersList
@@ -336,7 +359,13 @@ export const dynamic = "force-dynamic";
 
 export default function DashboardPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-[calc(100vh-64px)]"><span className="loading loading-spinner loading-lg"></span></div>}>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-[calc(100vh-64px)]">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      }
+    >
       <DashboardContent />
     </Suspense>
   );

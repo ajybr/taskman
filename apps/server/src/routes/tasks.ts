@@ -71,7 +71,7 @@ router.get("/", async (req: AuthRequest, res) => {
   return res.json(rows);
 });
 
-// POST /api/tasks — admin creates a task
+// POST /api/tasks — admin creates task for anyone, member creates for themselves
 router.post("/", async (req: AuthRequest, res) => {
   const { projectId, ...rest } = req.body;
 
@@ -79,14 +79,19 @@ router.post("/", async (req: AuthRequest, res) => {
     return res.status(400).json({ error: "projectId is required" });
 
   const role = await getMemberRole(projectId, req.user!.userId);
-  if (role !== "admin") return res.status(403).json({ error: "Admin only" });
+  if (!role) return res.status(403).json({ error: "Not a member of this project" });
 
   const parsed = taskSchema.safeParse(rest);
   if (!parsed.success)
     return res.status(400).json({ error: parsed.error.flatten() });
 
-  // Validate assignee is actually a member of the project
-  if (parsed.data.assignedTo) {
+  // Members can only assign tasks to themselves
+  if (role === "member" && parsed.data.assignedTo !== req.user!.userId) {
+    parsed.data.assignedTo = req.user!.userId;
+  }
+
+  // Validate assignee is actually a member of the project (for admin's selections)
+  if (role === "admin" && parsed.data.assignedTo) {
     const assigneeRole = await getMemberRole(projectId, parsed.data.assignedTo);
     if (!assigneeRole) {
       return res

@@ -2,16 +2,24 @@ import { create } from "zustand";
 import type { Project, ProjectMember, ProjectRole } from "@repo/types";
 import { api } from "@/lib/api";
 
+interface ProjectStats {
+  projectId: string;
+  total: number;
+  overdue: number;
+}
+
 interface ProjectState {
   projects: Project[];
   currentProject: Project | null;
   members: ProjectMember[];
   isLoading: boolean;
+  projectStats: Map<string, ProjectStats>;
   fetchProjects: () => Promise<void>;
   setCurrentProject: (projectId: string) => Promise<void>;
   createProject: (name: string, description?: string) => Promise<Project>;
   deleteProject: (id: string) => Promise<void>;
   removeMember: (projectId: string, userId: string) => Promise<void>;
+  fetchProjectStats: () => Promise<void>;
 }
 
 export const useProjectStore = create<ProjectState>((set, get) => ({
@@ -19,6 +27,18 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   currentProject: null,
   members: [],
   isLoading: false,
+  projectStats: new Map(),
+
+  fetchProjectStats: async () => {
+    try {
+      const stats = await api.projects.getStats();
+      const statsMap = new Map<string, ProjectStats>();
+      stats.forEach((s) => statsMap.set(s.projectId, s));
+      set({ projectStats: statsMap });
+    } catch (err) {
+      console.error("Failed to fetch project stats:", err);
+    }
+  },
 
   fetchProjects: async () => {
     set({ isLoading: true });

@@ -39,7 +39,7 @@ export function InviteModal({ isOpen, onClose, onGenerate }: InviteModalProps) {
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Invite to Project" className="w-96">
-      <form onSubmit={handleGenerate} className="space-y-4">
+      <div className="space-y-4">
         <div className="form-control w-full">
           <label className="label">
             <span className="label-text">Role</span>
@@ -69,10 +69,14 @@ export function InviteModal({ isOpen, onClose, onGenerate }: InviteModalProps) {
           </select>
         </div>
 
-        <button type="submit" className="btn btn-primary w-full" disabled={isLoading}>
-          {isLoading ? "Generating..." : "Generate Link"}
+        <button type="button" onClick={handleGenerate} className="btn btn-primary w-full">
+          {isLoading ? (
+            <span className="loading loading-spinner loading-sm"></span>
+          ) : (
+            "Generate Link"
+          )}
         </button>
-      </form>
+      </div>
 
       {generatedLink && (
         <div className="mt-4">

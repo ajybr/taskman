@@ -72,6 +72,11 @@ export const api = {
       );
       return data;
     },
+
+    getStats: async () => {
+      const { data } = await axiosClient.get<{ projects: Array<{ projectId: string; total: number; overdue: number }> }>("/projects/stats");
+      return data.projects;
+    },
   },
 
   tasks: {

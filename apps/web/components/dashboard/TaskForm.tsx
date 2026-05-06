@@ -16,6 +16,7 @@ interface TaskFormProps {
   members: ProjectMember[];
   currentUserId: string | undefined;
   className?: string;
+  isPending?: boolean;
 }
 
 export function TaskForm({
@@ -26,6 +27,7 @@ export function TaskForm({
   members,
   currentUserId,
   className = "",
+  isPending = false,
 }: TaskFormProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -61,34 +63,29 @@ export function TaskForm({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="New Task" className={className}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="form-control w-full">
-          <label className="label">
-            <span className="label-text">Title</span>
-          </label>
+      <div className="space-y-4">
+        <label className="floating-label input input-bordered w-full">
+          <span>Title</span>
           <input
             type="text"
-            className="input input-bordered w-full"
+            className="flex-1"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Task title"
-            required
             autoFocus
           />
-        </div>
+        </label>
 
-        <div className="form-control w-full">
-          <label className="label">
-            <span className="label-text">Description</span>
-          </label>
+        <label className="floating-label textarea textarea-bordered w-full">
+          <span>Description</span>
           <textarea
-            className="textarea textarea-bordered w-full"
+            className="flex-1"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Optional description"
             rows={2}
           />
-        </div>
+        </label>
 
         <div className="form-control w-full">
           <label className="label">
@@ -98,7 +95,6 @@ export function TaskForm({
             className="select select-bordered w-full"
             value={priority}
             onChange={(e) => setPriority(e.target.value as TaskPriority)}
-            required
           >
             <option value="low">Low</option>
             <option value="medium">Medium</option>
@@ -108,7 +104,7 @@ export function TaskForm({
 
         <div className="form-control w-full">
           <label className="label">
-            <span className="label-text">Assign To <span className="text-error">*</span></span>
+            <span className="label-text">Assign To</span>
             {project?.role !== "admin" && (
               <span className="label-text-alt text-primary">Yourself</span>
             )}
@@ -118,7 +114,6 @@ export function TaskForm({
               className="select select-bordered w-full"
               value={assignedTo}
               onChange={(e) => setAssignedTo(e.target.value)}
-              required
             >
               <option value="">Select assignee</option>
               {members.map((member) => (
@@ -144,28 +139,29 @@ export function TaskForm({
           )}
         </div>
 
-        <div className="form-control w-full">
-          <label className="label">
-            <span className="label-text">Due Date <span className="text-error">*</span></span>
-          </label>
+        <label className="floating-label input input-bordered w-full">
+          <span>Due Date <span className="text-error">*</span></span>
           <input
             type="date"
-            className="input input-bordered w-full"
+            className="flex-1"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            required
           />
-        </div>
+        </label>
+      </div>
 
-        <div className="flex gap-2">
-          <button type="submit" className="btn btn-primary flex-1" disabled={!title.trim() || (project?.role === "admin" && !assignedTo) || !dueDate}>
-            Create
-          </button>
-          <button type="button" className="btn" onClick={onClose}>
-            Cancel
-          </button>
-        </div>
-      </form>
+      <div className="flex gap-2 mt-4">
+        <button type="button" onClick={handleSubmit} className="btn btn-primary flex-1">
+          {isPending ? (
+            <span className="loading loading-spinner loading-sm"></span>
+          ) : (
+            "Create"
+          )}
+        </button>
+        <button type="button" className="btn" onClick={onClose}>
+          Cancel
+        </button>
+      </div>
     </Modal>
   );
 }
