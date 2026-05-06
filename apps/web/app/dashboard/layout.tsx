@@ -10,11 +10,7 @@ import { useInvite } from "@/hooks/useDashboard";
 import { ToastContainer } from "@/components/common";
 import { CreateProjectModal, JoinProjectModal } from "@/components/dashboard";
 
-function DashboardContent({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function DashboardContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const projectId = searchParams.get("projectId");
@@ -47,7 +43,9 @@ function DashboardContent({
   }, [isAuthenticated, fetchProjects]);
 
   useEffect(() => {
-    if (projectId && isAuthenticated) {
+    if (!projectId) {
+      useProjectStore.getState().setCurrentProject(null);
+    } else if (isAuthenticated) {
       useProjectStore.getState().setCurrentProject(projectId);
     }
   }, [projectId, isAuthenticated]);
@@ -81,11 +79,14 @@ function DashboardContent({
   return (
     <div className="min-h-screen bg-base-200 flex flex-col">
       <header className="navbar bg-base-100 shadow-sm px-6">
-        <Link href="/" className="navbar-start text-xl font-bold text-primary hover:opacity-80 transition-opacity">
+        <Link
+          href="/"
+          className="navbar-start text-xl font-bold text-primary hover:opacity-80 transition-opacity"
+        >
           TASKMAN
         </Link>
 
-        <div className="flex-none navbar-center">
+        <div className="flex-none navbar-center gap-2">
           <div
             className="dropdown"
             onClick={() => setShowProjectDropdown(!showProjectDropdown)}
@@ -135,7 +136,12 @@ function DashboardContent({
           </div>
         </div>
 
-        <div className="navbar-end ">
+        <div className="navbar-end gap-2">
+          {currentProject && (
+            <Link href="/dashboard" className="btn btn-ghost btn-sm">
+              Dashboard
+            </Link>
+          )}
           <div className="dropdown dropdown-end">
             <button
               className="btn btn-ghost btn-circle avatar"
@@ -183,7 +189,9 @@ function DashboardLoading() {
   return (
     <div className="min-h-screen bg-base-200 flex flex-col">
       <div className="navbar bg-base-100 shadow-sm px-6">
-        <div className="navbar-start text-xl font-bold text-primary">TASKMAN</div>
+        <div className="navbar-start text-xl font-bold text-primary">
+          TASKMAN
+        </div>
         <div className="navbar-center"></div>
         <div className="navbar-end">
           <div className="w-8 h-8 rounded-full bg-primary"></div>

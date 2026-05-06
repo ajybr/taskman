@@ -258,25 +258,7 @@ function DashboardContent() {
             <span className="loading loading-spinner loading-lg"></span>
           </div>
         ) : (
-          <div className="mb-4">
-            <div className="flex items-center justify-between">
-              <div className="text-lg font-semibold">
-                Total Tasks: {tasks.length}
-              </div>
-              <button
-                className="btn btn-ghost btn-sm btn-square tooltip tooltip-left"
-                data-tip="Refresh tasks"
-                onClick={() => projectId && refreshTasks(projectId)}
-              >
-                <RefreshCw className="h-4 w-4" />
-              </button>
-            </div>
-            {stats?.overdue && stats.overdue.length > 0 && (
-              <div className="alert alert-warning mt-2">
-                <span>{stats.overdue.length} task(s) overdue!</span>
-              </div>
-            )}
-          </div>
+          ""
         )}
 
         <div className="flex-1 grid grid-cols-3 gap-4 overflow-hidden h-[calc(100%-120px)]">

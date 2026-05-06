@@ -15,7 +15,7 @@ interface ProjectState {
   isLoading: boolean;
   projectStats: Map<string, ProjectStats>;
   fetchProjects: () => Promise<void>;
-  setCurrentProject: (projectId: string) => Promise<void>;
+  setCurrentProject: (projectId: string | null) => Promise<void>;
   createProject: (name: string, description?: string) => Promise<Project>;
   deleteProject: (id: string) => Promise<void>;
   removeMember: (projectId: string, userId: string) => Promise<void>;
@@ -51,7 +51,11 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     }
   },
 
-  setCurrentProject: async (projectId: string) => {
+  setCurrentProject: async (projectId: string | null) => {
+    if (!projectId) {
+      set({ currentProject: null, members: [], isLoading: false });
+      return;
+    }
     set({ isLoading: true });
     try {
       const projectData = await api.projects.getWithMembers(projectId);
