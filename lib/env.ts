@@ -1,10 +1,4 @@
 import { z } from "zod";
-import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const envSchema = z.object({
   DATABASE_URL: z.string(),
@@ -17,7 +11,7 @@ const parsed = envSchema.safeParse(process.env);
 if (!parsed.success) {
   console.error("Invalid environment variables:");
   console.error(parsed.error);
-  throw new Error("Invalid environment variables - check .env file");
+  throw new Error("Invalid environment variables - ensure DATABASE_URL, JWT_SECRET, and WEB_URL are set");
 }
 
 export const env = parsed.data;
