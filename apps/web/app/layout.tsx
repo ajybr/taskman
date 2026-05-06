@@ -3,7 +3,7 @@ import "./globals.css";
 import { Providers } from "@/providers";
 
 export const metadata: Metadata = {
-  title: "TaskMan",
+  title: "TASKMAN",
   description: "Task Management Application",
 };
 
@@ -20,3 +20,4 @@ export default function RootLayout({
     </html>
   );
 }
+

@@ -1,4 +1,4 @@
-# TaskMan
+# TASKMAN
 
 A task management application with project-based organization, team collaboration, and invite-based access.
 
@@ -35,29 +35,6 @@ graph TD
 ```
 
 ## Database Schema
-
-### Tables
-
-| Table | PK | Columns |
-|-------|-----|---------|
-| **users** | id | id (uuid), name, email (unique), passwordHash, createdAt |
-| **projects** | id | id (uuid), name, description, createdBy (FK), createdAt |
-| **projectMembers** | (projectId, userId) | projectId (FK), userId (FK), role (admin/member), joinedAt |
-| **tasks** | id | projectId (FK), title, description, priority, status, assignedTo (FK), createdBy (FK), dueDate, createdAt |
-| **projectInvites** | id | projectId (FK), inviteToken (unique), invitedBy (FK), role, acceptedAt, expiresAt |
-
-### Relationships
-
-| From | To | On Delete |
-|------|-----|-----------|
-| projects.createdBy | users.id | - |
-| projectMembers.projectId | projects.id | cascade |
-| projectMembers.userId | users.id | cascade |
-| tasks.projectId | projects.id | cascade |
-| tasks.assignedTo | users.id | set null |
-| tasks.createdBy | users.id | - |
-| projectInvites.projectId | projects.id | cascade |
-| projectInvites.invitedBy | users.id | - |
 
 ### ER Diagram
 
@@ -137,6 +114,12 @@ Required variables:
 - `JWT_SECRET` - Secret for JWT token signing
 - `WEB_URL` - Frontend URL (default: http://localhost:3000)
 - `NEXT_PUBLIC_API_URL` - Backend API URL (default: http://localhost:4000/api)
+
+## Demo
+
+For demo purposes, you can login with:
+- **Email**: user@demo.com
+- **Password**: 12345678
 
 ## Development
 
