@@ -158,7 +158,7 @@ export function TaskForm({
         </div>
 
         <div className="flex gap-2">
-          <button type="submit" className="btn btn-primary flex-1">
+          <button type="submit" className="btn btn-primary flex-1" disabled={!title.trim() || (project?.role === "admin" && !assignedTo) || !dueDate}>
             Create
           </button>
           <button type="button" className="btn" onClick={onClose}>

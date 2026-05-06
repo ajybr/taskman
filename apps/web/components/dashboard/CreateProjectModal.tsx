@@ -71,7 +71,7 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
             <button
               type="submit"
               className="btn btn-primary flex-1"
-              disabled={createProject.isPending}
+              disabled={!name.trim() || createProject.isPending}
             >
               {createProject.isPending ? "Creating..." : "Create"}
             </button>

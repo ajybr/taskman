@@ -47,7 +47,7 @@ try {
             />
           </div>
           <div className="flex gap-2">
-            <button type="submit" className="btn btn-primary flex-1">
+            <button type="submit" className="btn btn-primary flex-1" disabled={!token.trim()}>
               Join
             </button>
             <button type="button" className="btn flex-1" onClick={onClose}>
