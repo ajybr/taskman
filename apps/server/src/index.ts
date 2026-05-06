@@ -12,7 +12,14 @@ import inviteRoutes from "./routes/invites";
 
 const app = express();
 
-app.use(cors({ origin: env.WEB_URL, credentials: true }));
+const isProduction = process.env.NODE_ENV === "production";
+
+app.use(cors({
+  origin: isProduction
+    ? env.WEB_URL
+    : [env.WEB_URL, /^http:\/\/localhost:\d+$/],
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 
