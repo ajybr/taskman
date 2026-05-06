@@ -238,6 +238,14 @@ function DashboardContent() {
         </h2>
         <div className="flex items-center gap-2">
           <button
+            className="btn btn-ghost btn-sm btn-square tooltip tooltip-left"
+            data-tip="Refresh tasks"
+            onClick={() => projectId && refreshTasks(projectId)}
+          >
+            <RefreshCw className="h-4 w-4" />
+          </button>
+
+          <button
             className="btn btn-outline btn-sm"
             onClick={() => setShowMembersModal(true)}
           >
