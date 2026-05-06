@@ -8,6 +8,7 @@ import { useAuthStore } from "@/stores";
 import { useSignup } from "@/hooks";
 import { useToastStore } from "@/stores";
 import { ToastContainer } from "@/components/common";
+import { clientSignupSchema } from "@repo/auth/schemas";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -15,6 +16,10 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
   const { isAuthenticated, isLoading: authLoading } = useAuthStore();
   const signup = useSignup();
@@ -29,13 +34,33 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (password !== confirmPassword) {
-      addToast("Passwords don't match");
-      return;
-    }
+    setNameError("");
+    setEmailError("");
+    setPasswordError("");
+    setConfirmPasswordError("");
 
-    if (password.length < 8) {
-      addToast("Password must be at least 8 characters");
+    const result = clientSignupSchema.safeParse({
+      name,
+      email,
+      password,
+      confirmPassword,
+    });
+
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      if (errors.name?.[0]) setNameError(errors.name[0]);
+      if (errors.email?.[0]) setEmailError(errors.email[0]);
+      if (errors.password?.[0]) setPasswordError(errors.password[0]);
+      if (errors.confirmPassword?.[0])
+        setConfirmPasswordError(errors.confirmPassword[0]);
+
+      const firstError =
+        errors.name?.[0] ||
+        errors.email?.[0] ||
+        errors.password?.[0] ||
+        errors.confirmPassword?.[0] ||
+        "Please fill in all fields correctly";
+      addToast(firstError, "error");
       return;
     }
 
@@ -43,7 +68,7 @@ export default function SignupPage() {
       await signup.mutateAsync({ name, email, password });
       router.push("/dashboard");
     } catch (err) {
-      addToast(err instanceof Error ? err.message : "Signup failed");
+      addToast(err instanceof Error ? err.message : "Signup failed", "error");
     }
   };
 
@@ -113,7 +138,7 @@ export default function SignupPage() {
                 <input
                   type="password"
                   placeholder="Confirm your password"
-                  className="flex-1"
+                  className="flex-1 validator"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -122,7 +147,8 @@ export default function SignupPage() {
             </div>
 
             <button
-              type="submit"
+              type="button"
+              onClick={handleSubmit}
               className="btn btn-primary w-full mt-6"
               disabled={signup.isPending}
             >
@@ -132,6 +158,42 @@ export default function SignupPage() {
                 "Sign Up"
               )}
             </button>
+
+            <div className="space-y-2 mt-4">
+              <button className="btn  w-full" disabled>
+                <svg
+                  aria-label="Google logo"
+                  width="16"
+                  height="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 512 512"
+                >
+                  <g>
+                    <path d="m0 0H512V512H0" fill="#fff"></path>
+                    <path
+                      fill="#34a853"
+                      d="M153 292c30 82 118 95 171 60h62v48A192 192 0 0190 341"
+                    ></path>
+                    <path
+                      fill="#4285f4"
+                      d="m386 400a140 175 0 0053-179H260v74h102q-7 37-38 57"
+                    ></path>
+                    <path
+                      fill="#fbbc02"
+                      d="m90 341a208 200 0 010-171l63 49q-12 37 0 73"
+                    ></path>
+                    <path
+                      fill="#ea4335"
+                      d="m153 219c22-69 116-109 179-50l55-54c-78-75-230-72-297 55"
+                    ></path>
+                  </g>
+                </svg>
+                Sign up with Google
+                <span className="badge  badge-primary-content  badge-sm">
+                  Coming Soon
+                </span>
+              </button>
+            </div>
           </fieldset>
 
           <div className="divider">OR</div>
@@ -149,4 +211,3 @@ export default function SignupPage() {
     </div>
   );
 }
-
