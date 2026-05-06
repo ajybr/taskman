@@ -22,7 +22,7 @@ export default function Home() {
     >
       <Plasma
         color=""
-        speed={0.1}
+        speed={0.6}
         direction="pingpong"
         scale={1.1}
         opacity={0.8}
