@@ -6,6 +6,9 @@
     "./jwt": "./jwt.ts",
     "./middleware": "./middleware.ts"
   },
+  "dependencies": {
+    "zod": "^3.24.1"
+  },
   "devDependencies": {
     "typescript": "^5"
   }
