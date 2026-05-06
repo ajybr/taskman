@@ -70,6 +70,43 @@ router.post("/", async (req: AuthRequest, res) => {
   return res.status(201).json(project);
 });
 
+// GET /api/projects/stats — get task stats for all projects
+router.get("/stats", async (req: AuthRequest, res) => {
+  const userId = req.user!.userId;
+  const today = new Date().toISOString().split("T")[0];
+
+  // Get all projects user is member of
+  const userProjects = await db
+    .select({ projectId: projectMembers.projectId })
+    .from(projectMembers)
+    .where(eq(projectMembers.userId, userId));
+
+  const projectIds = userProjects.map((p) => p.projectId);
+
+  if (projectIds.length === 0) {
+    return res.json({ projects: [] });
+  }
+
+  // Get stats for each project individually
+  const stats = await Promise.all(
+    projectIds.map(async (projectId) => {
+      const projectTasks = await db
+        .select()
+        .from(tasks)
+        .where(eq(tasks.projectId, projectId));
+
+      const total = projectTasks.length;
+      const overdue = projectTasks.filter(
+        (t) => t.dueDate && t.status !== "done" && t.dueDate < today,
+      ).length;
+
+      return { projectId, total, overdue };
+    })
+  );
+
+  return res.json({ projects: stats });
+});
+
 // GET /api/projects/:id — get single project + members list
 router.get("/:id", async (req: AuthRequest, res) => {
   const { id } = req.params;
@@ -159,43 +196,6 @@ router.delete("/:id/members/:userId", async (req: AuthRequest, res) => {
     );
 
   return res.status(200).json({ message: "Member removed" });
-});
-
-// GET /api/projects/stats — get task stats for all projects
-router.get("/stats", async (req: AuthRequest, res) => {
-  const userId = req.user!.userId;
-  const today = new Date().toISOString().split("T")[0];
-
-  // Get all projects user is member of
-  const userProjects = await db
-    .select({ projectId: projectMembers.projectId })
-    .from(projectMembers)
-    .where(eq(projectMembers.userId, userId));
-
-  const projectIds = userProjects.map((p) => p.projectId);
-
-  if (projectIds.length === 0) {
-    return res.json({ projects: [] });
-  }
-
-  // Get stats for each project individually
-  const stats = await Promise.all(
-    projectIds.map(async (projectId) => {
-      const projectTasks = await db
-        .select()
-        .from(tasks)
-        .where(eq(tasks.projectId, projectId));
-
-      const total = projectTasks.length;
-      const overdue = projectTasks.filter(
-        (t) => t.dueDate && t.status !== "done" && t.dueDate < today,
-      ).length;
-
-      return { projectId, total, overdue };
-    })
-  );
-
-  return res.json({ projects: stats });
 });
 
 export default router;
