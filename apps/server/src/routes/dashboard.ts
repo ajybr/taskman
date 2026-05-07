@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { eq, and, lt, isNull, isNotNull } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db, tasks, users, projectMembers } from "@repo/db";
 import { requireAuth, AuthRequest } from "@repo/auth/middleware";
+import { getMemberRole } from "../lib/getMemberRole.js";
 
 const router = Router();
 router.use(requireAuth);
@@ -65,18 +66,5 @@ router.get("/", async (req: AuthRequest, res) => {
     unassigned,
   });
 });
-
-const getMemberRole = async (projectId: string, userId: string) => {
-  const [row] = await db
-    .select({ role: projectMembers.role })
-    .from(projectMembers)
-    .where(
-      and(
-        eq(projectMembers.projectId, projectId),
-        eq(projectMembers.userId, userId),
-      ),
-    );
-  return row?.role ?? null;
-};
 
 export default router;

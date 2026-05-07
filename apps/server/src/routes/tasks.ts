@@ -1,26 +1,12 @@
 import { Router } from "express";
 import { eq, and } from "drizzle-orm";
-import { db, tasks, projectMembers } from "@repo/db";
+import { db, tasks } from "@repo/db";
 import { requireAuth, AuthRequest } from "@repo/auth/middleware";
 import { z } from "zod";
+import { getMemberRole } from "../lib/getMemberRole.js";
 
 const router = Router();
 router.use(requireAuth);
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-const getMemberRole = async (projectId: string, userId: string) => {
-  const [row] = await db
-    .select({ role: projectMembers.role })
-    .from(projectMembers)
-    .where(
-      and(
-        eq(projectMembers.projectId, projectId),
-        eq(projectMembers.userId, userId),
-      ),
-    );
-  return row?.role ?? null;
-};
 
 const taskSchema = z.object({
   title: z.string().min(1).max(200).trim(),

@@ -3,27 +3,10 @@ import { eq, and } from "drizzle-orm";
 import { db, projects, projectMembers, users, tasks } from "@repo/db";
 import { requireAuth, AuthRequest } from "@repo/auth/middleware";
 import { z } from "zod";
+import { getMemberRole } from "../lib/getMemberRole.js";
 
 const router = Router();
 router.use(requireAuth); // all project routes require login
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-// Returns the caller's role in a project, or null if not a member
-const getMemberRole = async (projectId: string, userId: string) => {
-  const [row] = await db
-    .select({ role: projectMembers.role })
-    .from(projectMembers)
-    .where(
-      and(
-        eq(projectMembers.projectId, projectId),
-        eq(projectMembers.userId, userId),
-      ),
-    );
-  return row?.role ?? null;
-};
-
-// ─── Routes ───────────────────────────────────────────────────────────────────
 
 // GET /api/projects — list all projects the caller belongs to
 router.get("/", async (req: AuthRequest, res) => {
